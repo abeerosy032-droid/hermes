@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مختبر التقييمات — Hermes Agent</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;600;700&family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg2: #12121a;
+            --card: #1a1a2e;
+            --border: #2a2a3e;
+            --purple: #7c3aed;
+            --purple-light: #a78bfa;
+            --pink: #ec4899;
+            --cyan: #06b6d4;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --gold: #f59e0b;
+            --green: #22c55e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'El Messiri', 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 25% 20%, rgba(124,58,237,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 75% 60%, rgba(236,72,153,0.06) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(6,182,212,0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Back button */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: var(--purple-light); }
+
+        /* Header */
+        .lab-header {
+            text-align: center;
+            padding: 2rem 0;
+        }
+        .lab-header .icon { font-size: 4rem; margin-bottom: 1rem; }
+        .lab-header h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--purple-light), var(--pink), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .lab-header p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Model Cards */
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .model-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .model-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.4s;
+            border-radius: 20px;
+        }
+
+        .model-card.deepseek::before {
+            background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(6,182,212,0.08));
+        }
+        .model-card.glm::before {
+            background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(34,197,94,0.08));
+        }
+
+        .model-card:hover::before { opacity: 1; }
+        .model-card:hover {
+            border-color: var(--purple);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(124,58,237,0.15);
+        }
+
+        .model-card .model-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+        .model-card .model-name {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .model-card.deepseek .model-name {
+            background: linear-gradient(135deg, var(--purple-light), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .model-card.glm .model-name {
+            background: linear-gradient(135deg, var(--cyan), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .model-card .model-desc {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .model-card .model-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .model-card.deepseek .model-badge {
+            background: rgba(124,58,237,0.2);
+            color: var(--purple-light);
+            border: 1px solid rgba(124,58,237,0.3);
+        }
+        .model-card.glm .model-badge {
+            background: rgba(6,182,212,0.2);
+            color: var(--cyan);
+            border: 1px solid rgba(6,182,212,0.3);
+        }
+
+        .model-card .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-family: 'El Messiri', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 2;
+        }
+
+        .model-card.deepseek .btn {
+            background: linear-gradient(135deg, var(--purple), #6d28d9);
+            color: #fff;
+            border: none;
+        }
+        .model-card.glm .btn {
+            background: linear-gradient(135deg, var(--cyan), #0891b2);
+            color: #fff;
+            border: none;
+        }
+        .model-card .btn:hover {
+            box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Stats row */
+        .info-row {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+        .info-pill {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+        footer a {
+            color: var(--purple-light);
+            text-decoration: none;
+        }
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 600px) {
+            .lab-header h1 { font-size: 2rem; }
+            .model-card .model-name { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+
+    <div class="container">
+        <a href="index.html" class="back-link">← العودة للصفحة الرئيسية</a>
+
+        <div class="lab-header">
+            <div class="icon">🧪</div>
+            <h1>مختبر التقييمات</h1>
+            <p>اختبر نماذج الذكاء الاصطناعي المختلفة — أرسل أسئلتك وشاهد النتائج مباشرة</p>
+        </div>
+
+        <div class="info-row">
+            <span class="info-pill">📊 نتائج مباشرة</span>
+            <span class="info-pill">⏱ زمن الاستجابة</span>
+            <span class="info-pill">🪙 عدد الرموز</span>
+            <span class="info-pill">🎨 تصميم داكن</span>
+        </div>
+
+        <div class="models-grid">
+            <!-- DeepSeek Card -->
+            <a href="http://34.136.31.84:8080/deepseek_eval/" class="model-card deepseek" target="_blank">
+                <div class="model-icon">🧠</div>
+                <div class="model-name">DeepSeek</div>
+                <span class="model-badge">deepseek-chat</span>
+                <p class="model-desc">
+                    نموذج DeepSeek chat — أداء قوي في التحليل<br>
+                    والبرمجة واللغات المتعددة. يدعم العربية بطلاقة.
+                </p>
+                <span class="btn">🔗 فتح لوحة التقييم →</span>
+            </a>
+
+            <!-- GLM Card -->
+            <a href="http://34.136.31.84:8080/glm_eval/" class="model-card glm" target="_blank">
+                <div class="model-icon">🌐</div>
+                <div class="model-name">GLM-4</div>
+                <span class="model-badge">عبر مزود abdalgani</span>
+                <p class="model-desc">
+                    نموذج GLM-4 من Zhipu AI — مشغّل عبر مزودك<br>
+                    الخاص داخل Hermes. أداء قوي بالمهام العربية.
+                </p>
+                <span class="btn">🔗 فتح لوحة التقييم →</span>
+            </a>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0; color: var(--text-dim); font-size: 0.9rem;">
+            <p>💡 للبدء: اختر النموذج ← أرسل سؤالك في التلغرام ← افتح الرابط وشاهد النتيجة</p>
+        </div>
+
+        <footer>
+            <p>🪽 <strong>Hermes Agent</strong> — بُني بكل ❤️ بواسطة <a href="https://github.com/abeerosy032-droid">Abeer</a></p>
+        </footer>
+    </div>
+</body>
+</html>
